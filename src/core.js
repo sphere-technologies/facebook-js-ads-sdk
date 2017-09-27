@@ -6,15 +6,18 @@ import FacebookAdsApi from './api'
  */
 export class AbstractObject {
 
-  constructor () {
+  constructor (data) {
     this._data = {}
-    if (this.constructor.Fields === undefined) {
-      throw new Error('A "Fields" frozen object must be defined in the object class')
+    if (this.constructor.Field === undefined) {
+      throw new Error('A "Field" frozen object must be defined in the object class')
     }
-    this._fields = Object.keys(this.constructor.Fields)
+    this._fields = Object.keys(this.constructor.Field)
     this._fields.forEach((field) => {
       this._defineProperty(field)
     })
+    if (data) {
+      this.setData(data)
+    }
   }
 
   /**
@@ -125,6 +128,14 @@ export class AbstractCrudObject extends AbstractObject {
   }
 
   /**
+   * Export object data
+   * @return {Object}
+   */
+  exportAllData () {
+    return this._data
+  }
+
+  /**
    * Clear change history
    * @return this
    */
@@ -205,7 +216,12 @@ export class AbstractCrudObject extends AbstractObject {
     params = Object.assign(params, this.exportData())
     return new Promise((resolve, reject) => {
       api.call('POST', path, params)
-      .then((data) => resolve(this.setData(data)))
+      .then((data) => {
+        if (path.indexOf('adimages') > -1) {
+          data = data.images[params.name]
+        }
+        resolve(this.setData(data))
+      })
       .catch(reject)
     })
   }
@@ -257,18 +273,14 @@ export class AbstractCrudObject extends AbstractObject {
    * @param  {Object}  targetClass
    * @param  {Array}   [fields]
    * @param  {Object}  [params]
-   * @param  {Boolean} [fetchFirstPage]
    * @param  {String}  [endpoint]
    * @return {Cursor}
    */
-  getEdge (targetClass, fields, params = {}, fetchFirstPage = true, enpoint) {
+  getEdge (targetClass, fields, params = {}, enpoint) {
     if (fields) params['fields'] = fields.join(',')
     const sourceObject = this
     const cursor = new Cursor(sourceObject, targetClass, params, enpoint)
-    if (fetchFirstPage) {
-      return cursor.next()
-    }
-    return cursor
+    return cursor.next()
   }
 
   /**

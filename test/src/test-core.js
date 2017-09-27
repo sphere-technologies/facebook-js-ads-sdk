@@ -4,14 +4,14 @@ chai.should()
 
 describe('AbstractObject', () => {
   class ConcreteObject extends AbstractObject {
-    static get Fields () { return Object.freeze({ field: 'field' }) }
+    static get Field () { return Object.freeze({ field: 'field' }) }
   }
 
-  it('should possess a Fields enum', () => {
+  it('should possess a Field enum', () => {
     ;() => (new AbstractObject()).should.throw(Error)
-    ;() => (ConcreteObject.Fields = {}).should.throw(TypeError)
-    ;() => (ConcreteObject.Fields.field = '').should.throw(TypeError)
-    ConcreteObject.Fields.field.should.be.equal('field')
+    ;() => (ConcreteObject.Field = {}).should.throw(TypeError)
+    ;() => (ConcreteObject.Field.field = '').should.throw(TypeError)
+    ConcreteObject.Field.field.should.be.equal('field')
   })
 
   it('should create a data object with getters and setters for fields', () => {
@@ -20,6 +20,11 @@ describe('AbstractObject', () => {
     descriptor.get.should.be.a('function')
     descriptor.set.should.be.a('function')
     descriptor.enumerable.should.be.ok
+  })
+
+  it('should set data on instantiation', () => {
+    const object = new ConcreteObject({'field': 3})
+    object._data.should.be.eql({field: 3})
   })
 
   it('should set a data field value', () => {
@@ -67,7 +72,7 @@ describe('AbstractObject', () => {
 
 describe('AbstractCrudObject', () => {
   class ConcreteCrudObject extends AbstractCrudObject {
-    static get Fields () { return Object.freeze({ field: 'field' }) }
+    static get Field () { return Object.freeze({ field: 'field', anotherfield: 'anotherfield' }) }
   }
 
   it('should store changes for field properties', () => {
@@ -87,6 +92,13 @@ describe('AbstractCrudObject', () => {
     const object = new ConcreteCrudObject()
     object.field = 3
     object.exportData().should.be.eql({'field': 3})
+  })
+
+  it('should export all data', () => {
+    const object = new ConcreteCrudObject()
+    object._data = {'field': 3}
+    object.anotherfield = 4
+    object.exportAllData().should.be.eql({'anotherfield': 4, 'field': 3})
   })
 
   it('should clear change history', () => {
@@ -130,7 +142,7 @@ describe('Cursor', () => {
   const sourceObject = { getId: () => 'id', getApi: () => ({call: callStub}) }
   class targetClass {
     constructor (num) { this.v = num }
-    static get Fields () {}
+    static get Field () {}
     static getEndpoint () { 'endpoint' }
   }
 
