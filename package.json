@@ -1,6 +1,6 @@
 {
   "name": "facebook-ads-sdk",
-  "version": "2.7.1",
+  "version": "2.10.5",
   "description": "SDK for the Facebook Ads API in Javascript and Node.js",
   "author": "Lucas Costa (https://github.com/lucascosta)",
   "maintainers": [
@@ -51,16 +51,17 @@
     "rollup-plugin-json": "~2.0.2",
     "rollup-plugin-node-resolve": "~2.0.0",
     "rollup-stream": "~1.14.0",
-    "standard": "~8.4.0",
     "vinyl-buffer": "~1.0.0",
     "vinyl-source-stream": "~1.1.0"
   },
   "dependencies": {
     "mixwith": "~0.1.1",
+    "request": "^2.81.0",
     "request-promise": "~4.1.1"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --compilers js:babel-core/register test/src/ test/standard.js && gulp test-bundle && gulp test-phantom"
+    "prepublish": "gulp dist",
+    "test": "./node_modules/mocha/bin/mocha --compilers js:babel-core/register test/src/ test/standard.js"
   },
   "main": "./dist/cjs.js",
   "license": "MIT",
